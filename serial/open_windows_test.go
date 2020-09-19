@@ -27,11 +27,23 @@ func TestXonXoff(t *testing.T) {
 		RTSCTSFlowControl:     false,
 		InterCharacterTimeout: 100,
 		MinimumReadSize:       1,
-
+		//https://docs.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-dcb
 		XFlowControl: &XFlowControl{
+			//fTXContinueOnXoff
+			//If this member is TRUE, transmission continues after the input buffer has come within XoffLim bytes of being full
+			// and the driver has transmitted the XoffChar character to stop receiving bytes. If this member is FALSE, transmission
+			//does not continue until the input buffer is within XonLim bytes of being empty and the driver has transmitted the XonChar
+			//character to resume reception.
 			TXContinueOnXOFF: true,
-			InX:              false,
-			OutX:             true,
+			//fOutX
+			//Indicates whether XON/XOFF flow control is used during transmission. If this member is TRUE,
+			//transmission stops when the XoffChar character is received and starts again when the XonChar character is received.
+			OutX: false,
+			//fInX
+			//Indicates whether XON/XOFF flow control is used during reception. If this member is TRUE,
+			//the XoffChar character is sent when the input buffer comes within XoffLim bytes of being full,
+			//and the XonChar character is sent when the input buffer comes within XonLim bytes of being empty.
+			InX: false,
 		},
 	})
 	if err != nil {
@@ -72,8 +84,9 @@ func TestXonXoff(t *testing.T) {
 		for k, _ := range txBuff {
 			txBuff[k] = 0x55
 		}
-		txBuff[10] = XON
-		txBuff[20] = XOFF
+		txBuff[10] = XOFF
+		txBuff[11] = XOFF
+		txBuff[20] = XON
 		loopCntr := 0
 	DONE:
 		for {
