@@ -198,6 +198,31 @@ func setCommState(h syscall.Handle, options OpenOptions) error {
 		params.flags[0] |= 0x04 // fOutxCtsFlow = 0x1
 		params.flags[1] |= 0x20 // fRtsControl = RTS_CONTROL_HANDSHAKE (0x2)
 	}
+	//https://docs.microsoft.com/en-us/windows/win32/api/winbase/ns-winbase-dcb
+	if x := options.XFlowControl; x != nil {
+		if x.TXContinueOnXOFF {
+			params.flags[0] |= 0x08
+		}
+		if x.OutX {
+			params.flags[1] |= 0x01
+		}
+		if x.InX {
+			params.flags[1] |= 0x02
+		}
+		if x.XoffLim == 0 {
+			params.XonLim = 2048
+		}
+		if x.XoffLim == 0 {
+			params.XoffLim = 512
+		}
+		params.XonChar = 17  // DC1
+		params.XoffChar = 19 // C3
+		params.EvtChar = 0
+		params.EofChar = 26
+		params.ErrorChar = 63
+		//params.BreakChar = 63
+		//params.FlowReplace = 0x87
+	}
 
 	r, _, err := syscall.Syscall(nSetCommState, 2, uintptr(h), uintptr(unsafe.Pointer(&params)), 0)
 	if r == 0 {
