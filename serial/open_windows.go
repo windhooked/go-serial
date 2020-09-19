@@ -49,6 +49,16 @@ type structTimeouts struct {
 	WriteTotalTimeoutConstant   uint32
 }
 
+//https://github.com/bugst/go-serial/blob/master/serial.go
+// ModemStatusBits contains all the modem status bits for a serial port (CTS, DSR, etc...).
+// It can be retrieved with the Port.GetModemStatusBits() method.
+type ModemStatusBits struct {
+	CTS bool // ClearToSend status
+	DSR bool // DataSetReady status
+	RI  bool // RingIndicator status
+	DCD bool // DataCarrierDetect status
+}
+
 func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
 	if len(options.PortName) > 0 && options.PortName[0] != '\\' {
 		options.PortName = "\\\\.\\" + options.PortName
@@ -144,6 +154,8 @@ var (
 	nSetCommTimeouts,
 	nSetCommMask,
 	nSetupComm,
+	nGetCommState,
+	nGetCommModemStatus,
 	nGetOverlappedResult,
 	nCreateEvent,
 	nResetEvent uintptr
@@ -160,6 +172,8 @@ func init() {
 	nSetCommTimeouts = getProcAddr(k32, "SetCommTimeouts")
 	nSetCommMask = getProcAddr(k32, "SetCommMask")
 	nSetupComm = getProcAddr(k32, "SetupComm")
+	nGetCommModemStatus = getProcAddr(k32, "GetCommModemStatus")
+	nGetCommState = getProcAddr(k32, "GetCommState")
 	nGetOverlappedResult = getProcAddr(k32, "GetOverlappedResult")
 	nCreateEvent = getProcAddr(k32, "CreateEventW")
 	nResetEvent = getProcAddr(k32, "ResetEvent")
@@ -344,4 +358,26 @@ func getOverlappedResult(h syscall.Handle, overlapped *syscall.Overlapped) (int,
 	}
 
 	return n, nil
+}
+
+func GetModemStatusBits(h syscall.Handle) (*ModemStatusBits, error) {
+	var bits uint32
+	const (
+		msCTSOn  = 0x0010
+		msDSROn  = 0x0020
+		msRingOn = 0x0040
+		msRLSDOn = 0x0080
+	)
+	r0, _, _ := syscall.Syscall(nGetCommModemStatus, 2, uintptr(h), uintptr(unsafe.Pointer(&bits)), 0)
+
+	if r0 != 0 {
+		return nil, fmt.Errorf("sys call GetCommModemStatus rc=%v", r0)
+
+	}
+	return &ModemStatusBits{
+		CTS: (bits & msCTSOn) != 0,
+		DCD: (bits & msRLSDOn) != 0,
+		DSR: (bits & msDSROn) != 0,
+		RI:  (bits & msRingOn) != 0,
+	}, nil
 }
