@@ -1,9 +1,9 @@
 go-serial
 =========
 
-forked of github.com/jacobsa/go-serial/serial now with XON XOFF flow control on windows
-This is a package that allows you to read from and write to serial ports in Go.
+A fork from github.com/jacobsa/go-serial/serial to add XON XOFF flow control in windows
 
+TODO implement same for other platforms
 
 Use
 ---
