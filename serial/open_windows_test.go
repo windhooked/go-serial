@@ -141,8 +141,8 @@ func TestXonXoff(t *testing.T) {
 		}
 	}(portB)
 
-	fmt.Printf("% x", transmitted)
-	fmt.Printf("% x", received)
 	<-c
+	fmt.Printf("%v % x\n", len(transmitted), transmitted[10:13])
+	fmt.Printf("missing, xon,xoff driver is intercepting %v % x\n", len(received), received[10:13])
 
 }
