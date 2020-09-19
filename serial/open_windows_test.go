@@ -7,8 +7,6 @@ import (
 	"os/signal"
 	"syscall"
 	"testing"
-
-	"github.com/windhooked/go-serial/serial"
 )
 
 // requires com0com virtual port or similar
