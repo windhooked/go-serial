@@ -173,20 +173,20 @@ func openInternal(options OpenOptions) (io.ReadWriteCloser, error) {
 	if r != 0 {
 		return nil, errors.New("unknown error from SYS_IOCTL")
 	}
-
-	if options.Rs485Enable {
+	// TODO: testing, add sane defaults
+	if x := options.Rs485; x != nil {
 		rs485 := serial_rs485{
 			sER_RS485_ENABLED,
-			uint32(options.Rs485DelayRtsBeforeSend),
-			uint32(options.Rs485DelayRtsAfterSend),
+			uint32(x.DelayRtsBeforeSend),
+			uint32(x.DelayRtsAfterSend),
 			[5]uint32{0, 0, 0, 0, 0},
 		}
 
-		if options.Rs485RtsHighDuringSend {
+		if x.RtsHighDuringSend {
 			rs485.flags |= sER_RS485_RTS_ON_SEND
 		}
 
-		if options.Rs485RtsHighAfterSend {
+		if x.RtsHighAfterSend {
 			rs485.flags |= sER_RS485_RTS_AFTER_SEND
 		}
 

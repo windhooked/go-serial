@@ -140,23 +140,36 @@ type OpenOptions struct {
 	InterCharacterTimeout uint
 	MinimumReadSize       uint
 
+	*Rs485
+	*XFlowControl
+}
+type Rs485 struct {
 	// Use to enable RS485 mode -- probably only valid on some Linux platforms
-	Rs485Enable bool
+	Enable bool
 
 	// Set to true for logic level high during send
-	Rs485RtsHighDuringSend bool
+	RtsHighDuringSend bool
 
 	// Set to true for logic level high after send
-	Rs485RtsHighAfterSend bool
+	RtsHighAfterSend bool
 
 	// set to receive data during sending
-	Rs485RxDuringTx bool
+	RxDuringTx bool
 
 	// RTS delay before send
-	Rs485DelayRtsBeforeSend int
+	DelayRtsBeforeSend int
 
 	// RTS delay after send
-	Rs485DelayRtsAfterSend int
+	DelayRtsAfterSend int
+}
+type XFlowControl struct {
+	TXContinueOnXOFF bool
+	InX              bool
+	OutX             bool
+	XonLim           uint // 2048
+	XoffLim          uint // 512
+	XonChar          byte // 17  // DC1
+	XoffChar         byte // 19 // C3
 }
 
 // Open creates an io.ReadWriteCloser based on the supplied options struct.
