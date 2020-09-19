@@ -57,16 +57,18 @@ func main() {
 	}
 
 	options := serial.OpenOptions{
-		PortName:               *port,
-		BaudRate:               *baud,
-		DataBits:               *databits,
-		StopBits:               *stopbits,
-		MinimumReadSize:        *minread,
-		InterCharacterTimeout:  *chartimeout,
-		ParityMode:             parity,
-		Rs485Enable:            *rs485,
-		Rs485RtsHighDuringSend: *rs485HighDuringSend,
-		Rs485RtsHighAfterSend:  *rs485HighAfterSend,
+		PortName:              *port,
+		BaudRate:              *baud,
+		DataBits:              *databits,
+		StopBits:              *stopbits,
+		MinimumReadSize:       *minread,
+		InterCharacterTimeout: *chartimeout,
+		ParityMode:            parity,
+		Rs485: &serial.Rs485{
+			Enable:            *rs485,
+			RtsHighDuringSend: *rs485HighDuringSend,
+			RtsHighAfterSend:  *rs485HighAfterSend,
+		},
 	}
 
 	f, err := serial.Open(options)
